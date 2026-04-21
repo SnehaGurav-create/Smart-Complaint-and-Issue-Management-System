@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-"target/" 
-=======
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -18,4 +15,3 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
->>>>>>> d29ea6926bba152358f3bec155562279a5808b5f
