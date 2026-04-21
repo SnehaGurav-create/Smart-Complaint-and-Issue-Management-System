@@ -1,0 +1,191 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><title>Java Technology Stack Report</title>
+<style>
+body { font-family: Calibri, sans-serif; }
+h1 { color: #2e74b5; }
+h2 { color: #2e74b5; margin-top: 20px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; font-family: Consolas, monospace; }
+code { font-family: Consolas, monospace; color: #c7254e; background-color: #f9f2f4; padding: 2px 4px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<h1>Java Technology Stack Report</h1>
+<p><b>Smart Complaint &amp; Issue Management System</b></p>
+
+<p>This report details the core Java technologies and frameworks utilized in your project, explaining <b>what</b> they are, <b>why</b> they are used, and <b>where</b> they can be found within the codebase.</p>
+
+<hr>
+
+<h2>1. Spring Boot (v3.2.4)</h2>
+<p><b>What it is:</b> Spring Boot is an extension of the Spring framework that simplifies the setup and development of Spring applications. It provides auto-configuration, standalone deployment capabilities (embedded Tomcat), and opinionated 'starter' dependencies.</p>
+<p><b>Why it is used:</b> To rapidly develop a production-ready application without getting bogged down by boilerplate configuration. It acts as the backbone of the entire Smart Complaint System.</p>
+<p><b>Where it is found:</b> Throughout the application, starting from the <code>pom.xml</code> where starters are defined, to the main entry point.</p>
+<p><b>Code Snapshot:</b> Main Entry Point (<code>SmartComplaintApplication.java</code>)</p>
+<pre>
+package com.smartcomplaint.app;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+@SpringBootApplication // Triggers auto-configuration and component scanning
+@EnableScheduling      // Enables background scheduled tasks
+public class SmartComplaintApplication {
+
+    public static void main(String[] args) {
+        // Bootstraps the application and starts the embedded server
+        SpringApplication.run(SmartComplaintApplication.class, args);
+    }
+}
+</pre>
+
+<h2>2. Spring Data JPA &amp; Hibernate</h2>
+<p><b>What it is:</b> Spring Data JPA adds a layer on top of JPA (Java Persistence API), which in turn usually uses Hibernate as the provider. It provides repository abstractions to easily map Java objects to database tables (ORM).</p>
+<p><b>Why it is used:</b> To eliminate the need to write raw SQL queries for standard CRUD (Create, Read, Update, Delete) operations. It drastically reduces data access code and prevents SQL injection vulnerabilities.</p>
+<p><b>Where it is found:</b> In the <code>model</code> (Entities) and <code>repository</code> packages.</p>
+<p><b>Code Snapshot:</b> Repository Interface (<code>ComplaintRepository.java</code>)</p>
+<pre>
+package com.smartcomplaint.app.repository;
+
+import com.smartcomplaint.app.model.Complaint;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository // Marks this as a Data Access Object component
+public interface ComplaintRepository extends JpaRepository&lt;Complaint, Long&gt; {
+    
+    // Spring Data JPA automatically implements this query method!
+    List&lt;Complaint&gt; findByUserId(Long userId);
+    
+    List&lt;Complaint&gt; findByStatus(String status);
+}
+</pre>
+
+<p><b>Code Snapshot:</b> Entity Class (<code>Assignment.java</code>)</p>
+<pre>
+package com.smartcomplaint.app.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Entity // Maps this class to a database table
+@Data   // Lombok annotation for getters/setters
+@Table(name = "assignments")
+public class Assignment {
+
+    @Id // Primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne // Foreign key relationship
+    @JoinColumn(name = "complaint_id")
+    private Complaint complaint;
+    
+    private LocalDateTime assignedAt;
+}
+</pre>
+
+<h2>3. Spring MVC (Spring Web)</h2>
+<p><b>What it is:</b> The Model-View-Controller framework provided by Spring.</p>
+<p><b>Why it is used:</b> To handle HTTP requests (GET, POST, etc.), map URLs to specific Java methods, and return dynamic HTML views (via Thymeleaf) or JSON responses.</p>
+<p><b>Where it is found:</b> In the <code>controller</code> package classes.</p>
+<p><b>Code Snapshot:</b> Controller Example</p>
+<pre>
+package com.smartcomplaint.app.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.ui.Model;
+
+@Controller // Designates this class as a Web Controller
+public class HomeController {
+
+    @GetMapping("/") // Maps HTTP GET requests to the root URL
+    public String index(Model model) {
+        model.addAttribute("title", "Smart Complaint System");
+        // Returns the "index.html" Thymeleaf template
+        return "index"; 
+    }
+}
+</pre>
+
+<h2>4. Spring Security</h2>
+<p><b>What it is:</b> A powerful and highly customizable authentication and access-control framework for Java applications.</p>
+<p><b>Why it is used:</b> To secure the application by managing user logins (Authentication) and restricting access to certain pages based on user roles, like Admin vs. Regular User (Authorization). It also protects against common attacks like CSRF.</p>
+<p><b>Where it is found:</b> In the <code>config</code> package, typically in a <code>SecurityConfig.java</code> file, and as annotations on controller methods.</p>
+<p><b>Code Snapshot:</b> Method Level Security</p>
+<pre>
+import org.springframework.security.access.prepost.PreAuthorize;
+
+@Controller
+public class AdminController {
+
+    // Ensures ONLY users with the 'ADMIN' role can access this endpoint
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/dashboard")
+    public String adminDashboard() {
+        return "admin/dashboard";
+    }
+}
+</pre>
+
+<h2>5. Lombok</h2>
+<p><b>What it is:</b> A Java library that automatically plugs into your editor and build tools to generate boilerplate code at compile time.</p>
+<p><b>Why it is used:</b> To keep model/entity classes incredibly clean by automatically generating <code>getters()</code>, <code>setters()</code>, <code>equals()</code>, <code>hashCode()</code>, and <code>toString()</code> methods without explicitly writing them.</p>
+<p><b>Where it is found:</b> Mainly in the <code>model</code> or <code>dto</code> packages.</p>
+<p><b>Code Snapshot:</b> Lombok in Action (<code>User.java</code> or <code>Assignment.java</code>)</p>
+<pre>
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+@Data // Generates Getters, Setters, toString, equals, and hashCode
+@NoArgsConstructor // Generates an empty constructor
+@AllArgsConstructor // Generates a constructor with all properties
+public class UserDto {
+    private Long id;
+    private String username;
+    private String email;
+    private String role;
+}
+</pre>
+
+<h2>6. Spring WebSocket</h2>
+<p><b>What it is:</b> Spring's implementation for WebSocket communication, which allows two-way, full-duplex communication over a single TCP connection.</p>
+<p><b>Why it is used:</b> Likely utilized in this system to push real-time notifications to users or administrators when a complaint status is updated or a new issue is assigned, without requiring the user to refresh the page.</p>
+<p><b>Where it is found:</b> Configured in <code>config</code> (like <code>WebSocketConfig.java</code>) and used in services/controllers using <code>SimpMessagingTemplate</code>.</p>
+
+<h2>7. Thymeleaf (Server-Side Templating)</h2>
+<p><b>What it is:</b> A modern server-side Java template engine for both web and standalone environments.</p>
+<p><b>Why it is used:</b> To dynamically render HTML pages by injecting Java objects (Model data) into the HTML before sending it to the browser. It integrates perfectly with Spring Security to show/hide UI elements based on the logged-in user.</p>
+<p><b>Where it is found:</b> Templates live in <code>src/main/resources/templates/</code>.</p>
+<p><b>Code Snapshot:</b> Thymeleaf HTML File (<code>index.html</code>)</p>
+<pre>
+&lt;!-- The 'th:' attributes are processed by Thymeleaf on the Java Server --&gt;
+&lt;div th:if="${currentUser != null}"&gt;
+    &lt;h2 th:text="'Welcome back, ' + ${currentUser.username}"&gt;Welcome, User&lt;/h2&gt;
+&lt;/div&gt;
+
+&lt;!-- Spring Security Integration in Thymeleaf --&gt;
+&lt;div sec:authorize="hasRole('ADMIN')"&gt;
+    &lt;a href="/admin/reports"&gt;View Admin Reports&lt;/a&gt;
+&lt;/div&gt;
+</pre>
+
+<h2>Summary of Execution Flow</h2>
+<ol>
+    <li><b>Request:</b> A user makes an action (e.g., Submits a complaint).</li>
+    <li><b>Spring MVC (Controller):</b> Intercepts the HTTP POST request.</li>
+    <li><b>Spring Security:</b> Verifies the user is authenticated.</li>
+    <li><b>Spring Boot (Service):</b> Processes the business logic.</li>
+    <li><b>Spring Data JPA:</b> Saves the new complaint to the MySQL Database.</li>
+    <li><b>Spring WebSocket:</b> (Optional) Pushes a live notification to the Admin dashboard.</li>
+    <li><b>Thymeleaf:</b> Renders the success page and sends the HTML back to the user.</li>
+</ol>
+
+</body>
+</html>

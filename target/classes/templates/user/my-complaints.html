@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      th:with="CONTENT_TITLE='My Complaints'">
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Complaints</h2>
+        <a th:href="@{/user/complaints/new}" class="btn btn-accent"><i class="fas fa-plus"></i> File New</a>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+        Your complaint has been submitted successfully!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="card shadow-sm border-0 table-custom">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Submitted On</th>
+                            <th>Status</th>
+                            <th class="pe-4 text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="complaint : ${complaintPage.content}">
+                            <td class="ps-4" th:text="${'#' + complaint.id}"></td>
+                            <td class="fw-500" th:text="${complaint.title}"></td>
+                            <td th:text="${complaint.category.name}"></td>
+                            <td th:text="${#temporals.format(complaint.createdAt, 'dd MMM yyyy, HH:mm')}"></td>
+                            <td>
+                                <!-- WebSocket ID Hook -->
+                                <span th:id="'status-badge-' + ${complaint.id}" 
+                                      th:class="'badge badge-' + ${complaint.status}" 
+                                      th:text="${complaint.status}"></span>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <a th:href="@{'/user/complaints/' + ${complaint.id}}" class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(complaintPage.content)}">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-folder-open fa-3x mb-3 text-light"></i><br>
+                                You haven't submitted any complaints yet.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Pagination Component -->
+        <div class="card-footer bg-white py-3 border-0" th:if="${complaintPage.totalPages > 1}">
+            <nav>
+                <ul class="pagination mb-0 justify-content-end">
+                    <li class="page-item" th:classappend="${complaintPage.first ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/user/complaints(page=${complaintPage.number - 1})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, complaintPage.totalPages - 1)}"
+                        th:classappend="${complaintPage.number == i ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/user/complaints(page=${i})}" th:text="${i + 1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${complaintPage.last ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/user/complaints(page=${complaintPage.number + 1})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+</body>
+</html>

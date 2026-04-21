@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Smart Complaint & Issue Management System</title>
+    
+    <!-- Bootstrap CSS for grid framework, but we override styling via custom CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Sora:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        html { scroll-behavior: smooth; }
+        
+        .home-navbar {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 14px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .nav-left {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: #1e293b;
+        }
+        .nav-right {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+        .nav-right a {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-weight: 500;
+        }
+        .nav-right a:hover {
+            color: #2563eb;
+        }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: #1e293b;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        @media (max-width: 640px) {
+            .home-navbar {
+                padding: 14px 20px;
+            }
+            .nav-right {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(8px);
+                flex-direction: column;
+                padding: 20px 0;
+                gap: 20px;
+                border-top: 1px solid rgba(0,0,0,0.05);
+            }
+            .nav-right.active {
+                display: flex;
+            }
+            .hamburger {
+                display: block;
+            }
+        }
+
+        :root {
+            --primary-bg: #f8fafc;
+            --secondary-bg: #ffffff;
+            --accent-amber: #f59e0b;
+            --accent-blue: #2563eb;
+            --accent-green: #059669;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+        }
+
+        /* 🔝 SECTION 1 — HERO */
+        .hero-section {
+            position: relative;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 50%, #dbeafe 100%);
+            padding: 100px 20px 80px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Blurred radial glows */
+        .hero-section::before, .hero-section::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 0;
+        }
+        .hero-section::before {
+            width: 400px;
+            height: 400px;
+            background-color: var(--accent-amber);
+            opacity: 0.15;
+            top: -100px;
+            right: -100px;
+        }
+        .hero-section::after {
+            width: 400px;
+            height: 400px;
+            background-color: var(--accent-blue);
+            opacity: 0.15;
+            bottom: -100px;
+            left: -100px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .sdg-badge {
+            display: inline-block;
+            background-color: rgba(251, 191, 36, 0.15);
+            border: 1px solid var(--accent-amber);
+            color: var(--accent-amber);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            margin-bottom: 24px;
+        }
+
+        h1.main-heading {
+            font-size: clamp(32px, 5vw, 42px);
+            color: #1e293b;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+        h1.main-heading span {
+            color: var(--accent-amber);
+        }
+
+        p.sub-heading {
+            font-size: 15px;
+            color: var(--text-muted);
+            max-width: 520px;
+            margin: 0 auto 40px auto;
+            line-height: 1.6;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-family: 'Sora', sans-serif;
+            font-size: 26px;
+            color: var(--accent-amber);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* 🚪 SECTION 2 — DUAL PORTAL CARDS */
+        .portals-section {
+            max-width: 1000px;
+            margin: -40px auto 60px auto;
+            position: relative;
+            z-index: 2;
+            background-color: var(--secondary-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-light);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+        }
+
+        .portal-card {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .portals-section {
+                grid-template-columns: 1fr;
+                margin: 20px;
+            }
+            .portal-card[style] {
+                border-right: none !important;
+                border-bottom: 1px solid var(--border-light);
+            }
+        }
+
+        .icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 24px;
+        }
+        .icon-box.citizen {
+            background-color: rgba(37, 99, 235, 0.15);
+            color: var(--accent-blue);
+        }
+        .icon-box.admin {
+            background-color: rgba(5, 150, 105, 0.15);
+            color: var(--accent-green);
+        }
+
+        .portal-title {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        .portal-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 32px 0;
+            flex-grow: 1;
+        }
+        .feature-list li {
+            position: relative;
+            padding-left: 24px;
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        .feature-list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 7px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .list-blue li::before { background-color: var(--accent-blue); }
+        .list-green li::before { background-color: var(--accent-green); }
+
+        .btn-custom {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .btn-citizen {
+            background-color: var(--accent-blue);
+        }
+        .btn-citizen:hover {
+            background-color: #1d4ed8;
+            color: white;
+        }
+        .btn-admin {
+            background-color: var(--accent-green);
+        }
+        .btn-admin:hover {
+            background-color: #047857;
+            color: white;
+        }
+
+        .register-link {
+            text-align: center;
+            display: block;
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .register-link a {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* ℹ️ SECTION 4 — WHY THIS SYSTEM */
+        .info-section {
+            max-width: 1000px;
+            margin: 0 auto 80px auto;
+            padding: 0 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .info-card {
+            background-color: var(--secondary-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-light);
+            padding: 24px 16px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+        .info-icon {
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        .info-title {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        .info-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid var(--border-light);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="home-navbar">
+        <div class="nav-left">
+            <a href="#" style="color:white; text-decoration:none;"><i class="fas fa-city" style="color:var(--accent-amber); margin-right:8px;"></i> SCIMS</a>
+        </div>
+        <button class="hamburger" id="navToggle">☰</button>
+        <div class="nav-right" id="navLinks">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#teamModal">About</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#procedureModal">How It Works</a>
+        </div>
+    </nav>
+    
+    <!-- Dashboard shortcut if logged in -->
+    <a th:if="${isLoggedIn}" th:href="@{/dispatch}" class="btn btn-primary" style="position: absolute; top: 20px; left: 20px; z-index: 100; border-radius: 50px;">
+        <i class="fas fa-arrow-right"></i> Go to Dashboard
+    </a>
+
+    <!-- HERO SECTION -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <span class="sdg-badge">🏙 UN SDG Goal 11 · Sustainable Cities</span>
+            <h1 class="main-heading">Smart Complaint & <span>Issue</span> Management System</h1>
+            <p class="sub-heading">
+                A centralized civic platform empowering citizens to report public issues
+                and enabling authorities to resolve them — faster, transparently, and at scale.
+            </p>
+
+            <div class="stats-container">
+                <div class="stat-item">
+                    <span class="stat-number" id="count-rate">0</span>
+                    <span class="stat-label">Resolution Rate</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="count-time">0</span>
+                    <span class="stat-label">Avg. Resolution Time</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DUAL PORTALS -->
+    <div class="portals-section">
+        <!-- Citizen -->
+        <div class="portal-card" style="border-right: 1px solid var(--border-light);">
+            <div class="icon-box citizen"><i class="fas fa-users"></i></div>
+            <h3 class="portal-title">Citizen Portal</h3>
+            <p class="portal-desc">File complaints about garbage, water leakage, road damage, electricity, and more. Track resolution in real-time.</p>
+            
+            <ul class="feature-list list-blue">
+                <li>Submit & track complaints</li>
+                <li>Real-time status notifications</li>
+                <li>View complaint history</li>
+                <li>Category-based filing</li>
+            </ul>
+            
+            <div>
+                <a th:href="@{/login(type='user')}" class="btn-custom btn-citizen">Citizen Login</a>
+                <div class="register-link">
+                    No account? <a th:href="@{/register}">Register here</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin -->
+        <div class="portal-card">
+            <div class="icon-box admin"><i class="fas fa-user-shield"></i></div>
+            <h3 class="portal-title">Administrator Portal</h3>
+            <p class="portal-desc">Manage all incoming complaints, assign staff, update statuses, and generate analytical resolution reports.</p>
+            
+            <ul class="feature-list list-green">
+                <li>View & assign all complaints</li>
+                <li>Staff management</li>
+                <li>JDBC-powered reports</li>
+                <li>Live dashboard analytics</li>
+            </ul>
+            
+            <div style="margin-top: auto;"> <!-- Push to bottom if lists vary in height slightly -->
+                <a th:href="@{/login(type='admin')}" class="btn-custom btn-admin">Admin / Staff Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- INFO SECTION -->
+    <div id="team" class="info-section">
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-icon">⚡</div>
+                <h4 class="info-title">Real-Time Updates</h4>
+                <p class="info-text">WebSocket (STOMP) powered live notifications when your complaint status changes — no refresh needed.</p>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">🔒</div>
+                <h4 class="info-title">Secure & Role-Based</h4>
+                <p class="info-text">Spring Security with role-based access control for Citizens, Staff, and Administrators.</p>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">📊</div>
+                <h4 class="info-title">Analytics & Reports</h4>
+                <p class="info-text">Auto-generated weekly reports and SDG impact metrics tracking resolution efficiency.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer id="sdg-impact">
+        &copy; 2026 Smart Complaint System. All rights reserved.
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Animation Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile Nav Logic
+            const navToggle = document.getElementById('navToggle');
+            const navLinks = document.getElementById('navLinks');
+            if (navToggle && navLinks) {
+                navToggle.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                });
+            }
+            
+            // Animation Logic
+            const easeOutExpo = (t) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+            
+            function animateNumber(id, endValue, suffix = '', duration = 2000, isFloat = false) {
+                const element = document.getElementById(id);
+                const startTime = performance.now();
+                
+                function update(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easedProgress = easeOutExpo(progress);
+                    
+                    const currentValue = easedProgress * endValue;
+                    element.textContent = (isFloat ? currentValue.toFixed(1) : Math.floor(currentValue)) + suffix;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    } else {
+                        element.textContent = endValue + suffix;
+                    }
+                }
+                requestAnimationFrame(update);
+            }
+
+            // Start animations
+            setTimeout(() => {
+                animateNumber('count-rate', 87, '%');
+                animateNumber('count-time', 3.2, ' days', 2000, true);
+            }, 300);
+        });
+    </script>
+
+    <!-- Team Modal -->
+    <div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: var(--secondary-bg); color: var(--text-main); border: 1px solid var(--border-light);">
+          <div class="modal-header" style="border-bottom: 1px solid var(--border-light);">
+            <h5 class="modal-title" id="teamModalLabel" style="font-family: 'Sora', sans-serif;"><i class="fas fa-users text-primary me-2"></i> Developers</h5>
+            <button type="button" class="btn-close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div style="margin-bottom: 24px; padding: 16px; background-color: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                <h6 style="color: var(--accent-amber); font-family: 'Sora', sans-serif; font-size: 16px; margin-bottom: 12px;">Vishwaraj Savairam</h6>
+                <p style="margin: 0 0 8px 0; font-size: 14px; color: var(--text-muted);"><i class="fas fa-envelope me-2" style="color: var(--accent-blue);"></i> 202502040035@mitaoe.ac.in</p>
+                <p style="margin: 0; font-size: 14px; color: var(--text-muted);"><i class="fas fa-phone me-2" style="color: var(--accent-green);"></i> 9405007110</p>
+            </div>
+            <div style="padding: 16px; background-color: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                <h6 style="color: var(--accent-amber); font-family: 'Sora', sans-serif; font-size: 16px; margin-bottom: 12px;">Sneha Gurav</h6>
+                <p style="margin: 0; font-size: 14px; color: var(--text-muted);"><i class="fas fa-envelope me-2" style="color: var(--accent-blue);"></i> 202502040012@mitaoe.ac.in</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Procedure Modal -->
+    <div class="modal fade" id="procedureModal" tabindex="-1" aria-labelledby="procedureModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: var(--secondary-bg); color: var(--text-main); border: 1px solid var(--border-light);">
+          <div class="modal-header" style="border-bottom: 1px solid var(--border-light);">
+            <h5 class="modal-title" id="procedureModalLabel" style="font-family: 'Sora', sans-serif;"><i class="fas fa-clipboard-list text-primary me-2"></i> Procedure to Add Complaint</h5>
+            <button type="button" class="btn-close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div style="display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; text-align: center; min-width: 200px; padding: 16px; background-color: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(37, 99, 235, 0.15); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 20px; font-weight: bold; font-family: 'Sora', sans-serif;">1</div>
+                    <h5 style="font-size: 16px; margin-bottom: 8px;">Login / Register</h5>
+                    <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Create an account or login to the Citizen Portal.</p>
+                </div>
+                <div style="flex: 1; text-align: center; min-width: 200px; padding: 16px; background-color: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(37, 99, 235, 0.15); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 20px; font-weight: bold; font-family: 'Sora', sans-serif;">2</div>
+                    <h5 style="font-size: 16px; margin-bottom: 8px;">File a Complaint</h5>
+                    <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Provide location, category, and a brief description of the issue.</p>
+                </div>
+                <div style="flex: 1; text-align: center; min-width: 200px; padding: 16px; background-color: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(37, 99, 235, 0.15); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 20px; font-weight: bold; font-family: 'Sora', sans-serif;">3</div>
+                    <h5 style="font-size: 16px; margin-bottom: 8px;">Track Resolution</h5>
+                    <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Receive real-time updates as staff resolves the problem.</p>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>
