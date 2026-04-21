@@ -169,8 +169,6 @@ spring.jpa.hibernate.ddl-auto=update
 
 ## 📸 Screenshots
 
-> _Add screenshots of your application here_
-
 | Landing Page | User Dashboard | Admin Dashboard | 
 |---|---|---|
 | ![User Dashboard](screenshots/landing-page.jpeg) | ![User Dashboard](screenshots/user-dashboard.jpeg) | ![Admin Dashboard](screenshots/admin-dashboard.jpeg) |
