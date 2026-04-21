@@ -6,16 +6,17 @@ A full-stack web application built with **Spring Boot** that streamlines the pro
 
 ## 📌 Table of Contents
 
-- [About the Project](#about-the-project)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [Screenshots](#screenshots)
-- [Contributing](#contributing)
-- [License](#license)
+- [About the Project](#-about-the-project)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Configuration](#-configuration)
+- [Usage](#-usage)
+- [Screenshots](#-screenshots)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Author](#-author)
 
 ---
 
@@ -170,9 +171,9 @@ spring.jpa.hibernate.ddl-auto=update
 
 > _Add screenshots of your application here_
 
-| User Dashboard | Admin Dashboard |
-|---|---|
-| ![User Dashboard](screenshots/user-dashboard.png) | ![Admin Dashboard](screenshots/admin-dashboard.png) |
+| Landing Page | User Dashboard | Admin Dashboard | 
+|---|---|---|
+| ![User Dashboard](screenshots/landing-page.jpeg) | ![User Dashboard](screenshots/user-dashboard.jpeg) | ![Admin Dashboard](screenshots/admin-dashboard.jpeg) |
 
 ---
 
